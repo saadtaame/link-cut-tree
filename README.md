@@ -8,3 +8,11 @@ The trees can be queried using the following operations:
 * __path(x)__: compute a function of the nodes on the root-to-x path.
 
 All operations take O(lg n) amortized time. root(x) can be used to test connectivity. In this implementation the path function computes the depth of a node in its tree.
+
+Interface
+
+* LinkCut tree(n); /* new link-cut tree with n nodes */
+* tree.link(x, y); /* link x and y (both numbers < n) */
+* tree.cut(x); /* cut x (< n) */
+* tree.root(x); /* root of tree containing x (< n) */
+* tree.depth(x); /* depth of x (< n) in its tree */
