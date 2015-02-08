@@ -9,8 +9,7 @@ The trees can be queried using the following operations:
 
 All operations take O(lg n) amortized time. root(x) can be used to test connectivity. In this implementation the path function computes the depth of a node in its tree.
 
-Interface
----
+Interface:
 
 * LinkCut tree(n); /* new link-cut tree with n nodes */
 * tree.link(x, y); /* link x and y (both numbers < n) */
