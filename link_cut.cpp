@@ -1,10 +1,11 @@
 #include <cstdio>
-#include <cassert>
+
+using namespace std;
 
 struct Node
 {   int sz, label; /* size, label */
-    Node *p, *l, *r; /* parent, left, right pointers */
-    Node() { p = l = r = 0; }
+    Node *p, *pp, *l, *r; /* parent, path-parent, left, right pointers */
+    Node() { p = pp = l = r = 0; }
 };
 
 void update(Node *x)
@@ -22,7 +23,9 @@ void rotr(Node *x)
     {   if(y == z->l) z->l = x;
         else z->r = x;
     }
-    update(x->r);
+    x->pp = y->pp;
+    y->pp = 0;
+    update(y);
 }
 
 void rotl(Node *x)
@@ -34,18 +37,16 @@ void rotl(Node *x)
     {   if(y == z->l) z->l = x;
         else z->r = x;
     }
-    update(x->l);
-}
-
-bool splay_root(Node *x)
-{   return (x->p == 0) || (x != x->p->l && x != x->p->r);
+    x->pp = y->pp;
+    y->pp = 0;
+    update(y);
 }
 
 void splay(Node *x)
 {   Node *y, *z;
-    while(splay_root(x) == false)
+    while(x->p)
     {   y = x->p;
-        if(splay_root(y))
+        if(y->p == 0)
         {   if(x == y->l) rotr(x);
             else rotl(x);
         }
@@ -64,15 +65,31 @@ void splay(Node *x)
     update(x);
 }
 
-void access(Node *x)
-{   Node *r = 0;
-    for(Node *y = x; y; y = y->p)
-    {   splay(y);
-        y->r = r;
-        update(y);
-        r = y;
+Node *access(Node *x)
+{   splay(x);
+    if(x->r)
+    {   x->r->pp = x;
+        x->r->p = 0;
+        x->r = 0;
+        update(x);
     }
-    splay(x);
+
+    Node *last = x;
+    while(x->pp)
+    {   Node *y = x->pp;
+        last = y;
+        splay(y);
+        if(y->r)
+        {   y->r->pp = y;
+            y->r->p = 0;
+        }
+        y->r = x;
+        x->p = y;
+        x->pp = 0;
+        update(y);
+        splay(x);
+    }
+    return last;
 }
 
 Node *root(Node *x)
@@ -87,7 +104,6 @@ void cut(Node *x)
     x->l->p = 0;
     x->l = 0;
     update(x);
-    assert(x->r == 0);
 }
 
 void link(Node *x, Node *y)
@@ -96,6 +112,11 @@ void link(Node *x, Node *y)
     x->l = y;
     y->p = x;
     update(x);
+}
+
+Node *lca(Node *x, Node *y)
+{   access(x);
+    return access(y);
 }
 
 int depth(Node *x)
@@ -133,6 +154,10 @@ class LinkCut
 
     int depth(int u)
     {   return ::depth(&x[u]);
+    }
+
+    int lca(int u, int v)
+    {   return ::lca(&x[u], &x[v])->label;
     }
 };
 
